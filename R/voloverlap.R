@@ -83,9 +83,42 @@ dat2 <- tcsres2[, c('x', 'y', 'z')]
 vol1 <- convhulln(dat1, 'FA')$vol
 vol2 <- convhulln(dat2, 'FA')$vol
 
+#####################
+#CENTROID COMPARISON#
+#Centroid code developed from http://www.mathworks.se/matlabcentral/fileexchange/8514-centroid-of-a-convex-n-dimensional-polyhedron#
+#####################
+
+T1 = delaunayn(dat1);
+n1 = dim(T1)[1];
+W1 = mat.or.vec(n1,1);
+cen1=0;
+for (m in 1:n1) {
+    sp = dat1[T1[m,],];
+    W1[m]=convhulln(sp, 'FA')$vol;
+    cen1 = cen1 + W1[m] * colMeans(sp);
+}
+cen1=cen1/sum(W1);
+
+
+T2 = delaunayn(dat1);
+n2 = dim(T2)[1];
+W2 = mat.or.vec(n2,1);
+cen2=0;
+for (m in 1:n2) {
+    sp = dat2[T2[m,],];
+    W2[m]=convhulln(sp, 'FA')$vol;
+    cen2 = cen2 + W2[m] * colMeans(sp);
+}
+cen2=cen2/sum(W2);          
+
+
+cenDistance = sqrt(cen1[1]*cen2[1] + cen1[2]*cen2[2] + cen1[3]*cen2[3]);
+
+
 ######################
 #EXACT SOLUTION BEGIN#
 ######################
+
 if(!montecarlo){
 rat1 <- d2q(cbind(0, cbind(1, as.matrix(dat1))))
 rat2 <- d2q(cbind(0, cbind(1, as.matrix(dat2))))
@@ -109,7 +142,7 @@ vsmallest <- overlapVol/min(c(vol1,vol2))
 
 vboth <- overlapVol/(sum(c(vol1,vol2))-overlapVol)
 
-res <- data.frame(vol1, vol2, overlapvol = overlapVol, vsmallest, vboth)
+res <- data.frame(vol1, vol2, overlapvol = overlapVol, vsmallest, vboth, cen1, cen2, cenDistance)
 }
 
 ####################
