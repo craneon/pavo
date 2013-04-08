@@ -112,7 +112,7 @@ for (m in 1:n2) {
 cen2=cen2/sum(W2);          
 
 
-cenDistance = sqrt(cen1[1]*cen2[1] + cen1[2]*cen2[2] + cen1[3]*cen2[3]);
+cenDistance = sqrt((cen1[1]-cen2[1])^2 + (cen1[2]-cen2[2])^2 + (cen1[3]-cen2[3])^2);
 
 
 ######################
