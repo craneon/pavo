@@ -100,7 +100,7 @@ for (m in 1:n1) {
 cen1=cen1/sum(W1);
 
 
-T2 = delaunayn(dat1);
+T2 = delaunayn(dat2);
 n2 = dim(T2)[1];
 W2 = mat.or.vec(n2,1);
 cen2=0;
@@ -142,7 +142,7 @@ vsmallest <- overlapVol/min(c(vol1,vol2))
 
 vboth <- overlapVol/(sum(c(vol1,vol2))-overlapVol)
 
-res <- data.frame(vol1, vol2, overlapvol = overlapVol, vsmallest, vboth, cen1, cen2, cenDistance)
+res <- data.frame(vol1, vol2, overlapvol = overlapVol, vsmallest, vboth, cenDistance)
 }
 
 ####################
