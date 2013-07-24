@@ -48,21 +48,21 @@
 #' @references Montgomerie R. 2006. Analyzing colors. In Hill, G.E, and McGraw, K.J., eds. Bird Coloration. Volume 1 Mechanisms and measuremements. Harvard University Press, Cambridge, Massachusetts.
 
 procspec <- function(rspecdata, opt = c('none', 'smooth', 'maximum', 'minimum', 
-										 'bin', 'sum', 'center'), 
-										 fixneg = c('none', 'addmin', 'zero'),
-										 span = .25, bins = 20) {
+										 'bin', 'sum', 'center'), fixneg = c('none', 'addmin', 'zero'),
+										 span = .25, bins = 20, method=c("loess", "spline"), spar=.65) {
 
 opt <- match.arg(opt, several.ok = TRUE)
-
+method <- match.arg(method)
 fixneg <- match.arg(fixneg)
 
 applied <- 'processing options applied:\n'
 
 if (any(opt=='none')) {
   opt <- 'none' # remove other opt arguments (so they are not called further on, but still allowing for fixneg to work)
-  
-  if(fixneg=='none')
-    stop('No processing options selected')
+  applied <- 'No relevant processing option entered; returning raw values\n'
+#  rspecdata <- rspecdata
+#  class(rspecdata) <- c('rspec', 'data.frame')
+#	return(rspecdata)
   }
 
 wl_index <- which(names(rspecdata)=='wl')
@@ -93,24 +93,24 @@ if (fixneg=='addmin'){
 
 if (fixneg=='zero'){
   rspecdata[rspecdata < 0 ] <- 0
-  applied <- c(applied, 'Negative value correction: converted negative values to zero\n')
+  applied <- c(applied, 'Negative value correction: added min to all reflectance\n')
 }
 
-if (any(opt=='smooth')){
-  rspecdata <- sapply(names(rspecdata), function(z){loess.smooth(x = wl, 
-                  y = as.data.frame(rspecdata[, z]), span = span, degree = 2, 
-                  family = "gaussian", evaluation = length(wl))$y})
-  applied <- c(applied, paste('smoothing spectra with a span of',span,'\n'))
-  }
+# if (any(opt=='smooth')){
+#   rspecdata <- sapply(names(rspecdata), function(z){loess.smooth(x = wl, 
+#                   y = as.data.frame(rspecdata[, z]), span = span, degree = 2, 
+#                   family = "gaussian", evaluation = length(wl))$y})
+#   applied <- c(applied, paste('smoothing spectra with a span of',span,'\n'))
+#   }
 
-# if (any(opt=='smooth')&method=='spline')
-  # rspecdata <- sapply(names(rspecdata), function(z){smooth.spline(x = wl, y = rspecdata[, z], 
-           # spar = spar)$y})
+if (any(opt=='smooth')&method=='spline')
+  rspecdata <- sapply(names(rspecdata), function(z){smooth.spline(x = wl, y = rspecdata[, z], 
+           spar = spar)$y})
 
-# if (any(opt=='smooth')&method=='loess')
-  # rspecdata <- sapply(names(rspecdata), function(z){loess.smooth(x = wl, y = rspecdata[, z], 
-           # span = span, degree = 2, family = "gaussian", 
-           # evaluation = length(wl))$y})
+if (any(opt=='smooth')&method=='loess')
+  rspecdata <- sapply(names(rspecdata), function(z){loess.smooth(x = wl, y = rspecdata[, z], 
+           span = span, degree = 2, family = "gaussian", 
+           evaluation = length(wl))$y})
 
 if (any(opt=='minimum')){
   rspecdata <- sapply(1:ncol(rspecdata), function(z)rspecdata[, z] - min(rspecdata[, z]))

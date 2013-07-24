@@ -2,9 +2,9 @@
 \alias{vismodel}
 \title{Visual Models}
 \usage{
-  vismodel(rspecdata,
+  vismodel(rspecdata, qcatch = c("Qi", "fi"),
     visual = c("avg.uv", "avg.v", "bt", "star", "pfowl"),
-    achromatic = c("bt.dc", "ch.dc", "ml", "none"),
+    achromatic = c("bt.dc", "ch.dc", "st.dc", "ml", "none"),
     illum = c("ideal", "bluesky", "D65", "forestshade"),
     vonkries = F, scale = 1, bkg = "ideal",
     relative = TRUE)
@@ -14,6 +14,13 @@
   object of class \code{rspec} that has wavelength range in
   the first column, named 'wl', and spectral measurements
   in the remaining columns.}
+
+  \item{qcatch}{Which quantal catch metric to return.
+  Options are: \itemize{ \item \code{Qi}: Quantum catch for
+  each photoreceptor \item \code{fi}: Quantum catch
+  according to Fechner law (the signal of the receptor
+  channel is proportional to the logarithm of the quantum
+  catch) }}
 
   \item{visual}{the visual system to be used. Options are:
   \itemize{ \item a data frame such as one produced
@@ -33,7 +40,8 @@
   Currently implemented options are: \itemize{ \item
   \code{bt.dc}: Blue tit \emph{Cyanistes caeruleus} double
   cone \item \code{ch.dc}: Chicken \emph{Gallus gallus}
-  double cone \item \code{ml}: sum of the two
+  double cone \item \code{st.dc}: Starling \emph{Sturnus
+  vulgaris} double cone \item \code{ml}: sum of the two
   longest-wavelength cones \item \code{none} }}
 
   \item{illum}{either a vector containing the illuminant,
@@ -64,18 +72,11 @@
   no effect.}
 }
 \value{
-  An object of class \code{vismodel} containing the
-  following data frames:
-
-  \code{descriptive}: Descriptive statistics of maximum and
-  normalized reflectance, and wavelength of maximum
-  reflectance (hue)
-
-  \code{Qi}: Quantum catch for each photoreceptor
-
-  \code{fi}: Quantum catch according to Fechner law (the
-  signal of the receptor channel is proportional to the
-  logarithm of the quantum catch)
+  An object of class \code{vismodel} containing the photon
+  catches for each of the photoreceptors considered.
+  Information on the parameters used in the calculation are
+  also stored and can be called using the
+  \code{summary.vismodel} function.
 }
 \description{
   Applies the visual models of Vorobyev et al. (1998) to
