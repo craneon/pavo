@@ -4,7 +4,9 @@
 \alias{tcsvol}
 \title{Plot a Tetrahedral Color Space}
 \usage{
-  tcsplot(tcsdata, size = 0.02, col = "black", new = FALSE,
+  tcsplot(tcsdata, size = 0.02, col = "black",
+    vertexsize = 0.02, achrosize = 0.01, achrocol = "grey",
+    lwd = 1, lcol = "lightgrey", new = FALSE,
     hspin = FALSE, vspin = FALSE, floor = TRUE,
     grid = TRUE, fill = TRUE)
 
@@ -23,6 +25,18 @@
 
   \item{col}{color of the points in the plot (defaults to
   black)}
+
+  \item{vertexsize}{size of the points at the vertices}
+
+  \item{achrosize}{size of the point in the achromatic
+  center}
+
+  \item{achrocol}{color of the point in the achromatic
+  center}
+
+  \item{lwd}{line width for the edges of the tetrahedron}
+
+  \item{lcol}{line color for the edges of the tetrahedron}
 
   \item{new}{should a new 3D plot be called (defaults to
   \code{FALSE})?}
@@ -58,7 +72,7 @@
   to the plot. Points are currently plotted only as spheres
   to maintain export capabilities.
 
-  \code{tcsplot} creates 3D points in a tetrahedral color
+  \code{tcspoints} creates 3D points in a tetrahedral color
   space plot produced by \code{tcsplot} using functions of
   the package \code{rgl}, based on openGL capabilities.
 
@@ -87,8 +101,8 @@ rgl.snapshot('testplot.png')
 
 # For adding points
 patch <- rep(c('C','T','B'),7)
-tcs.crown <- tcs.sicalis[patch=='C', ]
-tcs.breast <- tcs.sicalis[patch=='B', ]
+tcs.crown <- subset(tcs.sicalis, 'C')
+tcs.breast <- subset(tcs.sicalis, 'B')
 tcsplot(tcs.crown, col='blue')
 tcspoints(tcs.breast, col='red')
 
