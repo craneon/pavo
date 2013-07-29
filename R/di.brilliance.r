@@ -1,12 +1,12 @@
 ## Dichromatism Measurement: Brilliance Comparison
 
-## Measures the difference in overall brilliance between male and female birds of a species. When log-avg option is FALSE (default), the measurement compares the average of the sum of relative reflectance over the entire spectral range (the integral under the curve) for all reflectance curves in the male or female individuals. When log-avg option is TRUE (must set), the function follows Maia et al. 2013 to compare the log-scaled average reflectance value across all spectra.
+## Measures the difference in overall brilliance between male and female birds of a species. When log.avg option is FALSE (default), the measurement compares the average of the sum of relative reflectance over the entire spectral range (the integral under the curve) for all reflectance curves in the male or female individuals. When log.avg option is TRUE (must set), the function follows Maia et al. 2013 to compare the log-scaled average reflectance value across all spectra.
 
 ## MUST be in the "Specs-by-Species" working directory, produced by the species.spec() function. 
 
 ## SCRIPT FOR BRILLIANCE COMPARISON MEASURE
 
-di.brilliance <- function(specs, log-avg = FALSE) {
+di.brilliance <- function(specs, log.avg = FALSE) {
   
 	##Set up data structures
 	
@@ -27,7 +27,7 @@ di.brilliance <- function(specs, log-avg = FALSE) {
 		curr.M <- curr.species[c(1,grep('[0-9]M', names(curr.species)))]
 		curr.F <- curr.species[c(1,grep('[0-9]F', names(curr.species)))]
 	
-		if (log-avg == FALSE) {
+		if (log.avg == FALSE) {
 		
 			## Get mean brightness integral over all spectra by adding together each individual spectral integral and dividing by the numer of spectra
 			
@@ -41,8 +41,8 @@ di.brilliance <- function(specs, log-avg = FALSE) {
 			
 		}
 		
-		if (log-avg == TRUE) {
-			
+		if (log.avg == TRUE) {
+		
 			## Get log-transformed average reflectance value of spectral curves, as in Maia et al. 2013. Uses $B2, the mean brightness (Mean relative reflectance over the entire spectral range) of the spectral range, instead of $B1, the total brightness (sum of relative reflectance over the entire spectral range, area under the curve).
 			
 			mean.M <- mean(summary(curr.M)$B2)
