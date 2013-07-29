@@ -51,3 +51,7 @@ Collate:
     'summary.vismodel.R'
     'subset.rspec.R'
     'irrad2flux.R'
+    'species.spec.R'
+    'di.span.patch.R'
+    'di.brilliance.R'
+    'di.volume.R'
