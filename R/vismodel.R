@@ -26,9 +26,12 @@
 #' \item \code{bt}: Blue tit \emph{Cyanistes caeruleus} visual system
 #' \item \code{star}: Starling \emph{Sturnus vulgaris} visual system  
 #' \item \code{pfowl}: Peafowl \emph{Pavo cristatus} visual system
+#' \item \code{apis}: Honeybee \emph{Apis mellifera} visual system
+#' \item \code{cie1931}: Human CIE 1931 color matching functions
 #' }
 #' @param achromatic the sensitivity data to be used to calculate luminance (achromatic)
-#' cone stimulation. Currently implemented options are: 
+#' cone stimulation. Either a vector containing the sensitivity for a single receptor, 
+#' or one of the options: 
 #' \itemize{
 #'	\item \code{bt.dc}: Blue tit \emph{Cyanistes caeruleus} double cone
 #'  \item \code{ch.dc}: Chicken \emph{Gallus gallus} double cone
@@ -70,10 +73,10 @@
 #' @references Endler, J. A., & Mielke, P. (2005). Comparing entire colour patterns as birds see them. Biological Journal Of The Linnean Society, 86(4), 405-431.
 
 vismodel <- function(rspecdata, qcatch = c('Qi','fi'),
-  visual = c("avg.uv", "avg.v", "bt", "star", "pfowl"), 
-  achromatic = c("bt.dc","ch.dc", 'st.dc',"ml","none"),
+  visual = c("avg.uv", "avg.v", "bt", "star", "pfowl", "apis", "cie1931"), 
+  achromatic = c("none","bt.dc","ch.dc", 'st.dc',"ml"),
   illum = c('ideal','bluesky','D65','forestshade'), 
-  vonkries=F, scale=1, bkg = 'ideal', relative=TRUE)
+  vonkries=FALSE, scale=1, bkg = 'ideal', relative=TRUE)
 {
 
 # remove & save colum with wavelengths
@@ -90,7 +93,7 @@ if(is.null(dim(y))){
   }
 
 visual2 <- try(match.arg(visual), silent=T)
-sens <- pavo::vissyst
+sens <- vissyst
 
 if(!inherits(visual2,'try-error')){
   
@@ -121,7 +124,7 @@ if(max(y) > 1)
 
 #DEFINING ILLUMINANT & BACKGROUND
 
-bgil<- pavo::bgandilum
+bgil<- bgandilum
 
 illum2 <- try(match.arg(illum), silent=T)
 if(!inherits(illum2,'try-error')){
@@ -146,6 +149,25 @@ if(bg2=='ideal')
 # scale background from percentage to proportion
 if(max(bkg) > 1)
   bkg <- bkg/100
+  
+# is the illuminant a matrix, dataframe or rspec?
+
+if('rspec' %in% class(illum)){
+  whichused <- names(illum)[2]
+  illum <- illum[,2]
+  warning(paste('Illuminant is an rspec object; first spectrum (', 
+    dQuote(whichused),') has been used (remaining columns ignored)', sep='')
+    , call.=FALSE)
+}
+
+if( 'data.frame' %in% class(illum) | 'matrix' %in% class(illum) & 
+  !'rspec' %in% class(illum)){
+  whichused <- names(illum)[1]
+  illum <- illum[,1]
+  warning(paste('Illuminant is a matrix or data frame; first column (', 
+    dQuote(whichused),') has been used (remaining columns ignored)', sep='')
+    , call.=FALSE)
+  }
 
 
 # scale illuminant
@@ -169,21 +191,56 @@ names(Qi) <- names(S)
 
 # calculate achromatic contrast
 
-achromatic <- match.arg(achromatic)
+achromatic2 <- try(match.arg(achromatic), silent=T)
 
-if(achromatic=='bt.dc' | achromatic=='ch.dc' | achromatic=='st.dc'){
-   L <- sens[,grep(achromatic,names(sens))]
+# user-defined achromatic receptor
+
+if(inherits(achromatic2,'try-error')){
+
+  achromatic2 <- 'user-defined'
+
+  # is achromatic a matrix, dataframe or rspec?
+
+  if('rspec' %in% class(achromatic)){
+    whichused <- names(achromatic)[2]
+    achromatic <- achromatic[,2]
+    warning(paste('achromatic is an rspec object; first spectrum (', 
+      dQuote(whichused),') has been used (remaining columns ignored)', sep='')
+      , call.=FALSE)
+  }
+
+  if( 'data.frame' %in% class(achromatic) | 'matrix' %in% class(achromatic) & 
+    !'rspec' %in% class(achromatic)){
+    whichused <- names(achromatic)[1]
+    achromatic <- achromatic[,1]
+    warning(paste('achromatic is a matrix or data frame; first column (', 
+      dQuote(whichused),') has been used (remaining columns ignored)', sep='')
+      , call.=FALSE)
+    }
+
+  L <- achromatic
+  lum <- colSums(y*L*illum)
+  Qi <- data.frame(cbind(Qi,lum))
+
+
+  }
+  
+# using one of the predefined receptors
+
+if(achromatic2=='bt.dc' | achromatic2=='ch.dc' | achromatic2=='st.dc'){
+   L <- sens[,grep(achromatic2,names(sens))]
   lum <- colSums(y*L*illum)
   Qi <- data.frame(cbind(Qi,lum))
 }
 
-if(achromatic=='ml'){
+if(achromatic2=='ml'){
    L <- rowSums(S[,c(dim(S)[2]-1,dim(S)[2])])
   lum <- colSums(y*L*illum)
   Qi <- data.frame(cbind(Qi,lum))
 }
 
-if(achromatic=='none'){
+if(achromatic2=='none'){
+	L   <- NULL
 	lum <- NULL
 }
 
@@ -227,7 +284,7 @@ if(relative & is.null(lum)){
 # Qi[blacks,] <- 0.2500 #place dark specs in achromatic center
 }
 
-#OUTPUT
+# OUTPUT
 #res<-list(descriptive=descriptive,Qi=Qi, qi=qi, fi=fi)
 
 qcatch <- match.arg(qcatch)
@@ -235,11 +292,22 @@ qcatch <- match.arg(qcatch)
 res <- switch(qcatch, Qi = Qi, fi = fi)
 
 class(res) <- c('vismodel', 'data.frame')
+
+# Descriptive attributes
+
 attr(res, 'qcatch') <- qcatch
-attr(res,'visualsystem') <- c(visual,achromatic)
+attr(res,'visualsystem') <- paste('chromatic: ', visual, ', achromatic: ',achromatic2, sep='')
 attr(res,'illuminant') <- paste(illum2,', scale = ',scale," ",vk, sep='')
 attr(res,'background') <- bg2
 attr(res,'relative') <- relative
+attr(res, 'conenumb') <- dim(S)[2]
+attr(res, 'vonkries') <- vonkries
+
+# Data attributes
+attr(res, 'data.visualsystem.chromatic') <- S
+attr(res, 'data.visualsystem.achromatic') <- L
+attr(res, 'data.background') <- bkg
+
 
 res
 }

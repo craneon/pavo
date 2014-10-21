@@ -9,14 +9,10 @@
 #'
 #' @export
 
-tcspoints<- function(tcsdata, size=0.02, col='black'){
+tcspoints<- function(tcsdata, size=0.02, col='black', alpha=1){
 
-# if(class(tcsdata)=='tcs'){
-  # dat <- tcsdata$tcs  
-  # }else{
-    # dat <- tcsdata
-    # }
+# load RGL, and attempt install if not found
+loadrgl()
 
-
-spheres3d(tcsdata[,c('x','y','z')], radius=size, color=col, lit=F)
+spheres3d(tcsdata[,c('x','y','z')], radius=size, color=col, lit=F, alpha=alpha)
 }
