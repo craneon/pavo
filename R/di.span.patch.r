@@ -11,7 +11,7 @@
 ## SCRIPT FOR PATCH DICHROMATISM MEASURE
 
 di.span.patch <- function(specs, avg = TRUE) {
-  
+	
 	species <- gsub('([A-Z]+)([0-9]+)([A-Za-z]+)([0-9])$', '', names(specs))[-1]
 	
 	patch.span <- data.frame()
@@ -59,7 +59,7 @@ di.span.patch <- function(specs, avg = TRUE) {
 		}
 		
 		if (avg == FALSE) {
-		curr.span <- as.data.frame(sum(d[,"cenDistance"]) ##left in for comparison
+		curr.span <- as.data.frame(sum(d[,"cenDistance"])) ##left in for comparison
 		}
 		
 		row.names(curr.span) <- x
